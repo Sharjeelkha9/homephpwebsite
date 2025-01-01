@@ -27,12 +27,12 @@ include "components/header.php";
                     <tr>
                     <th scope="row"><img src="<?php echo $catimagesaddress.$keys['image'] ?>" alt="" width="80" srcset=""></th>
                     <td><?php echo $keys['name'] ?></td>
-                    <td><a href="" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modelupdate<?php echo $keys['id'] ?>">Edit</a></td>
-                    <td><a href="" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modeldelete<?php echo $keys['id'] ?>">Delete</td>
+                    <td><a href="" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modelupdate<?php echo $keys['ctid'] ?>">Edit</a></td>
+                    <td><a href="" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modeldelete<?php echo $keys['ctid'] ?>">Delete</td>
                 </tr>
 
                 <!-- update category Modal -->
-<div class="modal fade" id="modelupdate<?php echo $keys['id'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="modelupdate<?php echo $keys['ctid'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -42,7 +42,7 @@ include "components/header.php";
             <div class="modal-body">
                 <form method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
-                        <input type="hidden" name="catid" value="<?php echo $keys['id'] ?>">
+                        <input type="hidden" name="catid" value="<?php echo $keys['ctid'] ?>">
                         <label for="exampleInputEmail1" class="form-label">Category Name</label>
                         <input type="text" name="catName" value="<?php echo $keys['name'] ?>" class="form-control" id="exampleInputEmail1"
                             aria-describedby="emailHelp">
@@ -62,7 +62,7 @@ include "components/header.php";
     </div>
 </div>
                     <!-- delete category Modal -->
-<div class="modal fade" id="modeldelete<?php echo $keys['id'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="modeldelete<?php echo $keys['ctid'] ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -71,7 +71,7 @@ include "components/header.php";
             </div>
             <div class="modal-body">
                 <form method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="catid" value="<?php echo $keys['id'] ?>">
+                <input type="hidden" name="catid" value="<?php echo $keys['ctid'] ?>">
                     <button type="submit" name="deleteCategory" class="btn btn-danger">Delete Category</button>
                 </form>
             </div>

@@ -11,7 +11,7 @@ include "components/header.php";
         <?php
 $query = $pdo->query("SELECT `products`.*, `categories`.`name` as catname
     FROM `products` 
-    INNER JOIN `categories` ON `products`.`categoryid` = `categories`.`id`;");
+    INNER JOIN `categories` ON `products`.`categoryid` = `categories`.`ctid`;");
 $rows = $query->fetchAll(PDO::FETCH_ASSOC);
 
 if (empty($rows)) {
@@ -57,7 +57,7 @@ if (empty($rows)) {
                             </div>
                             <div class="modal-body">
                                 <form method="POST" enctype="multipart/form-data">
-                                    <input type="hidden" name="proid" value="<?php echo $keys['id']; ?>">
+                                    <input type="hidden" name="proid" value="<?php echo $keys['ctid']; ?>">
                                     <button type="submit" name="deleteProducts" class="btn btn-danger">Delete Products</button>
                                 </form>
                             </div>
@@ -105,7 +105,7 @@ if (empty($rows)) {
                                             $categories = $categoryQuery->fetchAll(PDO::FETCH_ASSOC);
                                             foreach ($categories as $catkeys) {
                                             ?>
-                                                <option value="<?php echo $catkeys['id']; ?>" <?php echo $keys['categoryid'] == $catkeys['id'] ? 'selected' : ''; ?>>
+                                                <option value="<?php echo $catkeys['ctid']; ?>" <?php echo $keys['categoryid'] == $catkeys['ctid'] ? 'selected' : ''; ?>>
                                                     <?php echo $catkeys['name']; ?>
                                                 </option>
                                             <?php
@@ -180,7 +180,7 @@ if (empty($rows)) {
                             $rows = $query->fetchAll(PDO::FETCH_ASSOC);
                             foreach ($rows as $keys) {
                             ?>
-                                <option value="<?php echo $keys['id']; ?>"><?php echo $keys['name']; ?></option>
+                                <option value="<?php echo $keys['ctid']; ?>"><?php echo $keys['name']; ?></option>
                             <?php
                             }
                             ?>
