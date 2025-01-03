@@ -1,6 +1,11 @@
-
 <?php
 include("components/header.php");
+if($_SESSION['usertype']!="admin"){
+    echo "<script>
+    alert('only admin can access');
+    location.assign('../cozastore/index.php')
+    </script>";
+}
 ?>
             <!-- Sale & Revenue Start -->
             <div class="container-fluid pt-4 px-4">

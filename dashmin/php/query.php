@@ -1,9 +1,8 @@
 <?php
+session_start();
 include "connection.php";
 $catimagesaddress = "img/categories/";
 $productimagesaddress = "img/products/";
-
-
 //add Category 
 
 if (isset($_POST['addCategory'])) {
