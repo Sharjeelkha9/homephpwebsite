@@ -36,16 +36,81 @@ if(isset($_POST['login'])){
         $_SESSION['usertype']= $row['user_role_type'];
         if($_SESSION['usertype']=="user"){
             echo "<script>
-            alert('logged in user successfully');
+            alert('logged in User Successfully');
             location.assign('index.php')
             </script>";
         }else{
             echo "<script>
-            alert('logged in admin successfully');
+            alert('logged in Admin Successfully');
             location.assign('../dashmin/index.php');
             </script>";
         }
 
+    }
+}
+
+
+// add to cart
+if(isset($_POST['AddToCart'])){
+    $pId = $_POST['proId'];
+    $pName = $_POST['proname'];
+    $pQuantity = $_POST['proquantity'];
+    $pPrice = $_POST['proprice'];
+    $pImage = $_POST['proimage'];
+if(isset($_SESSION['cart'])){
+    $checkData = false;
+foreach($_SESSION['cart'] as $keys => $values){
+if($values['proid']==$pId){
+   $_SESSION['cart'][$keys]['proquantity'] +=$pQuantity;
+   echo "<script>
+   alert('Quantity Added');
+   </script>";
+    $checkData = true;
+}
+}
+if(!$checkData){
+
+        $count = count($_SESSION['cart']);
+    //    echo "<script>alert('".$count."')</script>";
+    $_SESSION['cart'][$count] =array(
+        "proid"=>$pId,
+        "proname"=>$pName,
+        "proimage"=>$pImage,
+        "proprice"=>$pPrice,
+        "proquantity"=>$pQuantity
+    );
+    echo "<script>
+    alert('Product Add into Cart');
+    </script>";
+    
+}
+
+}else{
+    $_SESSION['cart'][0]=array(
+                                "proid"=>$pId,
+                                "proname"=>$pName,
+                                "proimage"=>$pImage,
+                                "proprice"=>$pPrice,
+                                "proquantity"=>$pQuantity
+                            );
+                            echo "<script>
+                            alert('Product Add into Cart');
+                            </script>";
+}
+
+}
+// delete cart item
+if(isset($_GET['remove'])){
+    $pid = $_GET['remove'];
+    foreach($_SESSION['cart'] as $keys => $values){
+        if($values['proid']==$pid){
+            unset($_SESSION['cart'][$keys]);
+            $_SESSION['cart']=array_values($_SESSION['cart']);
+            echo "<script>
+            alert('Item Remove From Cart');
+            location.assign('shoping-cart.php');
+            </script>";
+        }
     }
 }
 

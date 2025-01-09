@@ -105,15 +105,32 @@ include("auth/auth.php")
 							<li>
 								<a href="contact.html">Contact</a>
 							</li>
-							<li>
+
+							<?php
+								if(!isset($_SESSION['username'])){
+?>
+
+
+<li>
 								<a href="register.php">Sign Up</a>
 							</li>
 							<li>
-								<a href="login.php">Login</a>
+								<a href="login.php">Sign In</a>
+							</li>
+<?php						
+
+							}else{
+								?>
+								
+							<li>
+								<a href="profile.php">Profile</a>
 							</li>
 							<li>
-								<a href="logout.php">Logout</a>
+								<a href="logout.php">logout</a>
 							</li>
+								<?php
+							}
+							?>
 						</ul>
 					</div>	
 
@@ -123,7 +140,18 @@ include("auth/auth.php")
 							<i class="zmdi zmdi-search"></i>
 						</div>
 
-						<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" data-notify="2">
+						<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" data-notify="<?php
+						$quantityCount = 0;
+						if(isset($_SESSION['cart'])){
+							foreach($_SESSION['cart'] as $keys => $val){
+								$quantityCount=$quantityCount+$val['proquantity'];
+							}
+							echo $quantityCount;
+						}else{
+							echo $quantityCount;
+
+						}
+						?>">
 							<i class="zmdi zmdi-shopping-cart"></i>
 						</div>
 
@@ -264,67 +292,48 @@ include("auth/auth.php")
 			</div>
 			
 			<div class="header-cart-content flex-w js-pscroll">
-				<ul class="header-cart-wrapitem w-full">
-					<li class="header-cart-item flex-w flex-t m-b-12">
+			<ul class="header-cart-wrapitem w-full">
+					<?php
+					$subTotal = 0;
+					if(isset($_SESSION['cart'])){
+						foreach($_SESSION['cart'] as $cartKeys => $cartValues){
+							$subTotal += $cartValues['proquantity']*$cartValues['proprice'];
+							?>
+							<li class="header-cart-item flex-w flex-t m-b-12">
 						<div class="header-cart-item-img">
-							<img src="images/item-cart-01.jpg" alt="IMG">
+							<img src="<?php echo $proaddress.$cartValues['proimage']?>" alt="IMG">
 						</div>
 
 						<div class="header-cart-item-txt p-t-8">
 							<a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-								White Shirt Pleat
+							<?php echo $cartValues['proname']?>
 							</a>
 
 							<span class="header-cart-item-info">
-								1 x $19.00
+							<?php echo $cartValues['proquantity']?> x PKR: <?php echo $cartValues['proprice']?>
 							</span>
 						</div>
 					</li>
+							<?php
+						}
+					}
+					?>
+					
 
-					<li class="header-cart-item flex-w flex-t m-b-12">
-						<div class="header-cart-item-img">
-							<img src="images/item-cart-02.jpg" alt="IMG">
-						</div>
-
-						<div class="header-cart-item-txt p-t-8">
-							<a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-								Converse All Star
-							</a>
-
-							<span class="header-cart-item-info">
-								1 x $39.00
-							</span>
-						</div>
-					</li>
-
-					<li class="header-cart-item flex-w flex-t m-b-12">
-						<div class="header-cart-item-img">
-							<img src="images/item-cart-03.jpg" alt="IMG">
-						</div>
-
-						<div class="header-cart-item-txt p-t-8">
-							<a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-								Nixon Porter Leather
-							</a>
-
-							<span class="header-cart-item-info">
-								1 x $17.00
-							</span>
-						</div>
-					</li>
+				
 				</ul>
 				
 				<div class="w-full">
 					<div class="header-cart-total w-full p-tb-40">
-						Total: $75.00
+					Total: PKR: <?php  echo $subTotal?>
 					</div>
 
 					<div class="header-cart-buttons flex-w w-full">
-						<a href="shoping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
+						<a href="shoping-cart.php" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
 							View Cart
 						</a>
 
-						<a href="shoping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
+						<a href="shoping-cart.php" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
 							Check Out
 						</a>
 					</div>
