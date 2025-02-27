@@ -148,3 +148,126 @@ if (isset($_POST['updateProducts'])) {
         echo "<script>alert('Data Updated Successfully')</script>";
     }
 }
+//add employee
+if (isset($_POST['addEmployee'])) {
+    $name = $_POST['empName'];
+    $email = $_POST['empEmail'];
+    $phone = $_POST['empPhone'];
+    $pass = $_POST['empPass'];
+    $userrole = $_POST['empRole'];
+
+    // Hash the password before storing it
+    $hashedPassword = password_hash($pass, PASSWORD_DEFAULT);
+
+    try {
+        // Insert into the employee table
+        $query = $pdo->prepare("INSERT INTO employee (empname, empemail, empphone, emppass) VALUES (:en, :ee, :epp, :ep)");
+        $query->bindParam(":en", $name);
+        $query->bindParam(":ee", $email);
+        $query->bindParam(":epp", $phone);
+        $query->bindParam(":ep", $hashedPassword);
+        $query->execute();
+
+        // Insert into the users table
+        $query = $pdo->prepare("INSERT INTO users (user_name, user_email, user_phone, user_password, user_role_type) VALUES (:en, :ee, :epp, :ep, :urt)");
+        $query->bindParam(":en", $name);
+        $query->bindParam(":ee", $email);
+        $query->bindParam(":epp", $phone);
+        $query->bindParam(":ep", $hashedPassword);
+        $query->bindParam(":urt", $userrole);
+        $query->execute();
+
+        echo "<script>alert('Employee Added Successfully');</script>";
+    } catch (Exception $e) {
+        echo "<script>alert('Error Adding Employee: " . $e->getMessage() . "');</script>";
+    }
+};
+//update employee
+if (isset($_POST['updateEmployee'])){
+    $name = $_POST['empName'];
+    $id = $_POST['empid'];
+    $email = $_POST['empEmail'];
+    $phone = $_POST['empPhone'];
+    $pass = $_POST['empPass'];
+    $query = $pdo->prepare("update employee set empname = :empName, empemail = :empEmail, empphone = :empPhone, emppass = :empPass where empid = :empid");
+                $query->bindParam("empid", $id);
+                $query->bindParam("empName", $name);
+                $query->bindParam("empEmail", $email);
+                $query->bindParam("empPhone", $phone);
+                $query->bindParam("empPass", $pass);
+                $query->execute();
+                echo "<script>alert('Employee Updated Successfully')</script>";
+};
+//delete employee
+
+if (isset($_POST['deleteEmployee'])) {
+    $id = $_POST['empid'];
+
+    try {
+        // Start a transaction to ensure both deletions are processed together
+        $pdo->beginTransaction();
+
+        // Step 1: Get the employee email before deleting from the employee table
+        $query = $pdo->prepare("SELECT empemail FROM employee WHERE empid = :empid");
+        $query->bindParam("empid", $id);
+        $query->execute();
+        $row = $query->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            $empEmail = $row['empemail'];
+
+            // Step 2: Delete the employee from the employee table
+            $query = $pdo->prepare("DELETE FROM employee WHERE empid = :empid");
+            $query->bindParam("empid", $id);
+            $query->execute();
+
+            // Step 3: Delete the corresponding user from the users table
+            $query = $pdo->prepare("DELETE FROM users WHERE user_email = :email");
+            $query->bindParam("email", $empEmail);
+            $query->execute();
+
+            // Commit the transaction
+            $pdo->commit();
+            echo "<script>alert('Employee Deleted Successfully');</script>";
+        } else {
+            echo "<script>alert('Employee not found');</script>";
+        }
+    } catch (Exception $e) {
+        // Roll back the transaction in case of any error
+        $pdo->rollBack();
+        echo "<script>alert('Error deleting employee: " . $e->getMessage() . "');</script>";
+    }
+}
+
+
+//delete order
+
+if (isset($_POST['deleteOrder'])) {
+    $id = $_POST['orderid'];
+    $query = $pdo->prepare("delete from orders where orderid = :orderid");
+    $query->bindParam("orderid", $id);
+    $query->execute();
+    echo "<script>alert('Order Deleted Successfully')</script>";
+}
+//delete feedback
+if (isset($_POST['deleteFeedback'])) {
+    $id = $_POST['feedbackid'];
+    $query = $pdo->prepare("delete from feedback where feedbackid = :feedbackid");
+    $query->bindParam("feedbackid", $id);
+    $query->execute();
+    echo "<script>alert('Feedback Deleted Successfully')</script>";
+}
+//delete invoice
+if (isset($_POST['deleteInvoice'])) {
+    $id = $_POST['invoiceid'];
+    $query = $pdo->prepare("delete from invoices where invoiceid = :invoiceid");
+    $query->bindParam("invoiceid", $id);
+    $query->execute();
+    echo "<script>alert('Invoice Deleted Successfully')</script>";
+}
+//change password
+
+
+//update profile
+
+

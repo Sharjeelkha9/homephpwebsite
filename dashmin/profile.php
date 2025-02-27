@@ -23,23 +23,25 @@ $userData = $profileQuery->fetch(PDO::FETCH_ASSOC);
 // Check if user data is found
 if ($userData) {
 ?>
-    <div class="profile-container">
-        <div class="profile-header">
-            <h1><?php echo htmlspecialchars($userData['user_name']); ?></h1>
-        </div>
-        <div class="profile-details">
-            <ul>
-                <li>Email: <?php echo htmlspecialchars($userData['user_email']); ?></li>
-                <li>Password: <?php echo htmlspecialchars($userData['user_password']); ?></li>
-                <li>Phone: <?php echo htmlspecialchars($userData['user_phone']); ?></li>
-                <li>User Role Type: <?php echo htmlspecialchars($userData['user_role_type']); ?></li>
-            </ul>
-        </div>
-        <!-- Edit Profile Button -->
-        <a href="#" class="edit-button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</a>
+    <div class="container mt-4">
+        <div class="profile-container">
+            <div class="profile-header">
+                <h1><?php echo htmlspecialchars($userData['user_name']); ?></h1>
+            </div>
+            <div class="profile-details">
+                <ul class="list-group">
+                    <li class="p-3 list-group-item">Email: <?php echo htmlspecialchars($userData['user_email']); ?></li>
+                
+                    <li class="p-3 list-group-item">Phone: <?php echo htmlspecialchars($userData['user_phone']); ?></li>
+                    <li class="p-3 list-group-item">User Role Type: <?php echo htmlspecialchars($userData['user_role_type']); ?></li>
+                </ul>
+            </div>
+            <!-- Button to open the Bootstrap modal -->
+            <a href="#" class="edit-button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</a>
+        </div>  
     </div>
 
-    <!-- Bootstrap Modal for Password Change -->
+    <!-- Bootstrap Modal for changing the password -->
     <div class="modal fade" style="margin-top: 100px;" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -48,7 +50,10 @@ if ($userData) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="changePasswordForm" action="auth/auth.php" method="POST">
+                    <form id="changePasswordForm" action="php/query.php" method="POST">
+                        <!-- Hidden input field to pass the user ID -->
+                        <input type="hidden" name="empid" value="<?php echo htmlspecialchars($userId); ?>">
+                        
                         <div class="mb-3">
                             <label for="currentPassword" class="form-label">Current Password</label>
                             <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
@@ -67,9 +72,6 @@ if ($userData) {
             </div>
         </div>
     </div>
-
-    <!-- Include Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Handle form submission via AJAX (optional)
@@ -77,7 +79,7 @@ if ($userData) {
             event.preventDefault(); // Prevent default form submission
 
             // Perform AJAX request to submit the form data
-            fetch('auth/auth.php', {
+            fetch('php/query.php', {
                 method: 'POST',
                 body: new FormData(this)
             })
@@ -96,62 +98,57 @@ if ($userData) {
 } else {
     echo "User data not found.";
 }
-
 include "components/footer.php";
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $currentPassword = $_POST['currentPassword'];
+    $newPassword = $_POST['newPassword'];
+    $confirmNewPassword = $_POST['confirmNewPassword'];
 
-$currentPage = basename($_SERVER['PHP_SELF']); // Get the current page name
+    // Check if user ID is passed from the form (hidden input)
+    if (!isset($_POST['empid']) || empty($_POST['empid'])) {
+        echo "User ID is missing.";
+        exit();
+    }
 
-// Allow logged-out users to access specific public pages
-$publicPages = ['index.php', 'login.php', 'register.php','product.php','product-detail.php','contact.php','feedback.php','blog.php','shoping-cart.php','about.php'];
+    $userId = $_POST['empid'];
 
-if (!isset($_SESSION['userid']) && !in_array($currentPage, $publicPages)) {
-    header("Location: index.php");
-    exit();
-}
+    // Ensure new password and confirmation match
+    if ($newPassword !== $confirmNewPassword) {
+        echo "New passwords do not match.";
+        exit();
+    }
 
-// If the user is logged in, proceed
-if (isset($_SESSION['userid'])) {
-    $userId = $_SESSION['userid'];
+    // Fetch the user's current password hash from the database
+    $stmt = $pdo->prepare("SELECT user_password FROM users WHERE user_id = :user_id");
+    $stmt->execute(['user_id' => $userId]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $currentPassword = $_POST['currentPassword'];
-        $newPassword = $_POST['newPassword'];
-        $confirmNewPassword = $_POST['confirmNewPassword'];
+    if (!$user) {
+        echo "User not found.";
+        exit();
+    }
 
-        // Validate new password confirmation
-        if ($newPassword !== $confirmNewPassword) {
-            echo "New passwords do not match.";
-            exit();
-        }
+    // Verify the current password
+    if (!password_verify($currentPassword, $user['user_password'])) {
+        echo "Current password is incorrect.";
+        exit();
+    }
 
-        // Fetch current password hash from the database
-        $stmt = $pdo->prepare("SELECT user_password FROM users WHERE user_id = :user_id");
-        $stmt->execute(['user_id' => $userId]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Hash the new password
+    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
-        if (!$user) {
-            session_destroy(); // Destroy session if user doesn't exist
-            header("Location: index.php");
-            exit();
-        }
+    // Update the user's password in the database
+    $updateStmt = $pdo->prepare("UPDATE users SET user_password = :user_password WHERE user_id = :user_id");
+    $updateStmt->execute([
+        'user_password' => $hashedPassword,
+        'user_id' => $userId
+    ]);
 
-        $storedHashedPassword = $user['user_password'];
-
-        if (password_verify($currentPassword, $storedHashedPassword)) {
-            // Hash the new password
-            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-
-            // Update the password in the database
-            $updateStmt = $pdo->prepare("UPDATE users SET user_password = :user_password WHERE user_id = :user_id");
-            $updateStmt->execute([
-                'user_password' => $hashedPassword,
-                'user_id' => $userId
-            ]);
-
-            echo "Password updated successfully.";
-        } else {
-            echo "Current password is incorrect.";
-        }
+    if ($updateStmt->rowCount() > 0) {
+        echo "Password changed successfully.";
+    } else {
+        echo "Failed to change the password.";
     }
 }
 ?>
