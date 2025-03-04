@@ -15,7 +15,7 @@ include "components/header.php";
 	<section class="bg0 p-t-104 p-b-116">
 		<div class="container">
 			<div class="flex-w flex-tr">
-				<div class="size-210 bor10 p-lr-70 p-t-55 p-b-70 p-lr-15-lg w-full-md">
+				<div class="w-50 size-210 bor10 p-lr-70 p-t-55 p-b-70 p-lr-15-lg w-full-md">
 					<form>
 						<h4 class="mtext-105 cl2 txt-center p-b-30">
 							Send Us A Message
@@ -36,7 +36,7 @@ include "components/header.php";
 					</form>
 				</div>
 
-				<div class="size-210 bor10 flex-w flex-col-m p-lr-93 p-tb-30 p-lr-15-lg w-full-md">
+				<div class="w-50 size-210 bor10 flex-w flex-col-m p-lr-93 p-tb-30 p-lr-15-lg w-full-md">
 					<div class="flex-w w-full p-b-42">
 						<span class="fs-18 cl5 txt-center size-211">
 							<span class="lnr lnr-map-marker"></span>

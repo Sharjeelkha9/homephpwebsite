@@ -58,7 +58,7 @@ include("auth/auth.php")
 					
 					<!-- Logo desktop -->		
 					<a href="index.php" class="logo">
-						<img src="images/icons/logo-01.png" alt="IMG-LOGO">
+						<h3 style="color: #333;"><b>ARTS</b> STORE</h3>
 					</a>
 
 					<!-- Menu desktop -->
@@ -139,7 +139,7 @@ include("auth/auth.php")
 		<div class="wrap-header-mobile">
 			<!-- Logo moblie -->		
 			<div class="logo-mobile">
-				<a href="index.php"><img src="images/icons/logo-02.png" alt="IMG-LOGO"></a>
+				<a href="index.php"><h3 style="color: #333;"><b>ARTS</b> STORE</h3></a>
 			</div>
 
 			<!-- Icon header -->
@@ -152,9 +152,7 @@ include("auth/auth.php")
 					<i class="zmdi zmdi-shopping-cart"></i>
 				</div>
 
-				<a href="#" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti" data-notify="0">
-					<i class="zmdi zmdi-favorite-outline"></i>
-				</a>
+		
 			</div>
 
 			<!-- Button show menu -->
@@ -214,6 +212,31 @@ include("auth/auth.php")
 				<li>
 					<a href="feedback.html">feedback</a>
 				</li>
+				<?php
+								if(!isset($_SESSION['username'])){
+?>
+
+
+<li>
+								<a href="register.php">Sign Up</a>
+							</li>
+							<li>
+								<a href="login.php">Sign In</a>
+							</li>
+<?php						
+
+							}else{
+								?>
+								
+							<li>
+								<a href="profile.php">Profile</a>
+							</li>
+							<li>
+								<a href="logout.php">logout</a>
+							</li>
+								<?php
+							}
+							?>
 			</ul>
 		</div>
 

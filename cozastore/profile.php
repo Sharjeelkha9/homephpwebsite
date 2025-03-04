@@ -1,21 +1,57 @@
 <?php
 include "components/header.php";
 
-// Check if session is not already started
+// Start session if not started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check if the user is logged in
+// Check if user is logged in
 if (!isset($_SESSION['userid'])) {
-    echo "Please log in to view your profile.";
+    echo "<script>alert('Please log in to view your profile.'); window.location.href='index.php';</script>";
     exit();
 }
-
-// Get the logged-in user's ID from the session
 $userId = $_SESSION['userid'];
+$message = ""; // Message for password change feedback
 
-// Query to select the logged-in user's data
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['changePassword'])) {
+    $currentPassword = $_POST['currentPassword'];
+    $newPassword = $_POST['newPassword'];
+    $confirmNewPassword = $_POST['confirmNewPassword'];
+
+    if ($newPassword !== $confirmNewPassword) {
+        echo "<script>alert('New passwords do not match.');</script>";
+    } else {
+        // Fetch current password hash from the database
+        $stmt = $pdo->prepare("SELECT user_password FROM users WHERE user_id = :user_id");
+        $stmt->execute(['user_id' => $userId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            session_destroy();
+            echo "<script>alert('User not found.'); window.location.href='index.php';</script>";
+            exit();
+        }
+
+        if (password_verify($currentPassword, $user['user_password'])) {
+            // Hash new password
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+            // Update password in database
+            $updateStmt = $pdo->prepare("UPDATE users SET user_password = :user_password WHERE user_id = :user_id");
+            $updateStmt->execute([
+                'user_password' => $hashedPassword,
+                'user_id' => $userId
+            ]);
+
+            echo "<script>alert('Password updated successfully.'); </script>";
+        } else {
+            echo "<script>alert('Current password is incorrect.');</script>";
+        }
+    }
+}
+
+// Fetch user data for profile display
 $profileQuery = $pdo->prepare("SELECT * FROM users WHERE user_id = :user_id");
 $profileQuery->execute(['user_id' => $userId]);
 $userData = $profileQuery->fetch(PDO::FETCH_ASSOC);
@@ -30,12 +66,12 @@ if ($userData) {
         <div class="profile-details">
             <ul>
                 <li>Email: <?php echo htmlspecialchars($userData['user_email']); ?></li>
-                <li>Password: <?php echo htmlspecialchars($userData['user_password']); ?></li>
                 <li>Phone: <?php echo htmlspecialchars($userData['user_phone']); ?></li>
                 <li>User Role Type: <?php echo htmlspecialchars($userData['user_role_type']); ?></li>
             </ul>
         </div>
-        <!-- Edit Profile Button -->
+
+        <!-- Change Password Button -->
         <a href="#" class="edit-button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</a>
     </div>
 
@@ -48,7 +84,8 @@ if ($userData) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="changePasswordForm" action="auth/auth.php" method="POST">
+                    <form id="changePasswordForm" method="POST">
+                        <input type="hidden" name="changePassword" value="1">
                         <div class="mb-3">
                             <label for="currentPassword" class="form-label">Current Password</label>
                             <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
@@ -70,88 +107,11 @@ if ($userData) {
 
     <!-- Include Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle form submission via AJAX (optional)
-        document.getElementById('changePasswordForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
 
-            // Perform AJAX request to submit the form data
-            fetch('auth/auth.php', {
-                method: 'POST',
-                body: new FormData(this)
-            })
-            .then(response => response.text())
-            .then(data => {
-                alert(data); // Show response message
-                if (data.includes("successfully")) {
-                    window.location.reload(); // Reload the page on success
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    });
-    </script>
 <?php
 } else {
-    echo "User data not found.";
+    echo "<script>alert('User data not found.');</script>";
 }
 
 include "components/footer.php";
-
-$currentPage = basename($_SERVER['PHP_SELF']); // Get the current page name
-
-// Allow logged-out users to access specific public pages
-$publicPages = ['index.php', 'login.php', 'register.php','product.php','product-detail.php','contact.php','feedback.php','blog.php','shoping-cart.php','about.php'];
-
-if (!isset($_SESSION['userid']) && !in_array($currentPage, $publicPages)) {
-    header("Location: index.php");
-    exit();
-}
-
-// If the user is logged in, proceed
-if (isset($_SESSION['userid'])) {
-    $userId = $_SESSION['userid'];
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $currentPassword = $_POST['currentPassword'];
-        $newPassword = $_POST['newPassword'];
-        $confirmNewPassword = $_POST['confirmNewPassword'];
-
-        // Validate new password confirmation
-        if ($newPassword !== $confirmNewPassword) {
-            echo "New passwords do not match.";
-            exit();
-        }
-
-        // Fetch current password hash from the database
-        $stmt = $pdo->prepare("SELECT user_password FROM users WHERE user_id = :user_id");
-        $stmt->execute(['user_id' => $userId]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$user) {
-            session_destroy(); // Destroy session if user doesn't exist
-            header("Location: index.php");
-            exit();
-        }
-
-        $storedHashedPassword = $user['user_password'];
-
-        if (password_verify($currentPassword, $storedHashedPassword)) {
-            // Hash the new password
-            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-
-            // Update the password in the database
-            $updateStmt = $pdo->prepare("UPDATE users SET user_password = :user_password WHERE user_id = :user_id");
-            $updateStmt->execute([
-                'user_password' => $hashedPassword,
-                'user_id' => $userId
-            ]);
-
-            echo "Password updated successfully.";
-        } else {
-            echo "Current password is incorrect.";
-        }
-    }
-}
 ?>

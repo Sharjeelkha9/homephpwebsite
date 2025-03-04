@@ -35,9 +35,6 @@ include "components/header.php";
 						</button>
 					</form>
 				</div>
-
-				<div style="background-image: url('images/blog-01.jpg');" class="size-210 bor10 flex-w flex-col-m p-lr-93 p-tb-30 p-lr-15-lg w-full-md">
-					</div>
 				</div>
 			</div>
 		</div>

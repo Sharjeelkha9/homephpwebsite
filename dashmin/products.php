@@ -57,7 +57,7 @@ if (empty($rows)) {
                             </div>
                             <div class="modal-body">
                                 <form method="POST" enctype="multipart/form-data">
-                                    <input type="hidden" name="proid" value="<?php echo $keys['ctid']; ?>">
+                                    <input type="hidden" name="proid" value="<?php echo $keys['id']; ?>">
                                     <button type="submit" name="deleteProducts" class="btn btn-danger">Delete Products</button>
                                 </form>
                             </div>

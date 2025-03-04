@@ -37,7 +37,7 @@ if (isset($_POST['updateCategory'])) {
         if ($extension == "jpg" || $extension == "png" || $extension == "jpeg" || $extension == "webp") {
             if (move_uploaded_file($imageobject, $pathdirectory)) {
                 //query Prepration
-                $query = $pdo->prepare("update categories set name = :catName, image = :catImage where id = :catid");
+                $query = $pdo->prepare("update categories set name = :catName, image = :catImage where ctid = :catid");
                 $query->bindParam("catid", $id);
                 $query->bindParam("catName", $name);
                 $query->bindParam("catImage", $imagename);
@@ -48,7 +48,7 @@ if (isset($_POST['updateCategory'])) {
             echo "<script>alert('Invalid file type use only jpg, jpeg, png or webp')</script>";
         }
     } else {
-        $query = $pdo->prepare("update categories set name = :catName where id = :catid");
+        $query = $pdo->prepare("update categories set name = :catName where ctid = :catid");
         $query->bindParam("catid", $id);
         $query->bindParam("catName", $name);
         $query->execute();
@@ -60,7 +60,7 @@ if (isset($_POST['updateCategory'])) {
 
 if (isset($_POST['deleteCategory'])) {
     $id = $_POST['catid'];
-    $query = $pdo->prepare("delete from categories where id = :catid");
+    $query = $pdo->prepare("delete from categories where ctid = :catid");
     $query->bindParam("catid", $id);
     $query->execute();
     echo "<script>alert('Data Deleted Successfully')</script>";
